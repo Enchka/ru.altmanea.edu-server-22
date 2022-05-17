@@ -1,0 +1,1 @@
+rootProject.name = "ru.altmanea.edu-server-22"
