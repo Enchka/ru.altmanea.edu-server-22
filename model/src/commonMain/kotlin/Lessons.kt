@@ -9,4 +9,5 @@ data class Lessons(
 ) {
     val getName: String
         get() = "$name "
+
 }
