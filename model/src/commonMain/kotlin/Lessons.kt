@@ -5,9 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Lessons(
     val name: String,
-    val students: Set<String>
-) {
-    val getName: String
-        get() = "$name "
-
-}
+    val students: Set<String> = emptySet()
+)

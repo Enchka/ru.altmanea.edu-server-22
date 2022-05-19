@@ -4,6 +4,8 @@ import kotlinext.js.jso
 import kotlinx.html.INPUT
 import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import react.Props
 import react.dom.*
 import react.fc
@@ -101,7 +103,7 @@ fun fcContainerLessonsList() = fc("QueryLessonsList") { _: Props ->
                 headers = json(
                     "Content-Type" to "application/json"
                 )
-                data = JSON.stringify(lesson)
+                data = Json.encodeToString(lesson)
             })
         },
         options = jso {

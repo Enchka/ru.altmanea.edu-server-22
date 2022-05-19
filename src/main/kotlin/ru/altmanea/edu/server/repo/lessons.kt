@@ -12,13 +12,13 @@ fun ListRepo<Lessons>.urlByUUID(uuid: String) =
         Config.lessonsURL + it.uuid
     }
 
-fun ListRepo<Lessons>.urlByGroups(Lessons: String) =
+/*fun ListRepo<Lessons>.urlByGroups(Lessons: String) =
     this.find { it.getsName == Lessons }.let {
         if (it.size == 1)
             Config.lessonsURL + it.first().uuid
         else
             null
-    }
+    }*/
 
 val lessonsRepoTestData = listOf(
     Lessons("Biology"),

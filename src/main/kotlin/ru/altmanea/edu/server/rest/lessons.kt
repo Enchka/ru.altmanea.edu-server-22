@@ -35,6 +35,21 @@ fun Route.lesson() {
             call.response.etag(lessonItem.etag.toString())
             call.respond(lessonItem)
         }
+        get("{id}/students") {
+            val id = call.parameters["id"] ?: return@get call.respondText(
+                "Missing or malformed id",
+                status = HttpStatusCode.BadRequest
+            )
+            val lessonItem =
+                lessonsRepo[id] ?: return@get call.respondText(
+                    "No lesson with name $id",
+                    status = HttpStatusCode.NotFound
+                )
+
+            val students = studentsRepo.find { it.lessons == lessonItem.elem.name }
+
+            call.respond(students)
+        }
         post {
             val lesson = call.receive<Lessons>()
             lessonsRepo.create(lesson)

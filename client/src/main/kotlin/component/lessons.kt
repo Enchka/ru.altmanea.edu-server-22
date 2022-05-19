@@ -84,7 +84,7 @@ fun fcContainerLessons() = fc("ContainerLessons") { _: Props ->
         lessonsId,
         {
             axios<Array<Lessons>>(jso {
-                url = "${Config.lessonsPath}lesson/$lessonsId"
+                url = "${Config.lessonsPath}$lessonsId"
             })
         }
     )
@@ -92,7 +92,7 @@ fun fcContainerLessons() = fc("ContainerLessons") { _: Props ->
         "Students",
         {
             axios<Array<Student>>(jso {
-                url = "${Config.lessonsPath}lesson/$lessonsId/students"
+                url = "${Config.lessonsPath}$lessonsId/students"
             })
         }
     )

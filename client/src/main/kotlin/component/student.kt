@@ -75,7 +75,7 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                     attrs.value = groups
                     attrs.onChangeFunction = onInputEdit(setGroups, groupsRef)
                 }
-                p {
+                /*p {
                     +"Lessons:"
                 }
 
@@ -111,6 +111,10 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                             }
                         }
                     }
+                }*/
+
+                p {
+                    +"Lesson: ${props.students.elem.lessons}"
                 }
 
                 button {

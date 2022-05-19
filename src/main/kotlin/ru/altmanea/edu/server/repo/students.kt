@@ -19,7 +19,7 @@ fun ListRepo<Student>.urlByFirstname(firstname: String) =
     }
 
 val studentsRepoTestData = listOf(
-    Student("Sheldon", "Cooper", "29a", "Match"),
+    Student("Sheldon", "Cooper", "29a", "Biology"),
     Student("Leonard", "Hofstadter", "29b", "History"),
     Student("Howard", "Wolowitz", "29c", "English"),
     Student("Penny", "Hofstadter", "29d", "Physics"),
