@@ -4,6 +4,7 @@ import kotlinext.js.jso
 import kotlinx.html.INPUT
 import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import react.Props
@@ -24,6 +25,7 @@ import ru.altmanea.edu.server.model.Student
 import wrappers.AxiosResponse
 import wrappers.QueryError
 import wrappers.axios
+import wrappers.fetchText
 import kotlin.js.json
 
 interface LessonsListProps : Props {
@@ -88,12 +90,10 @@ class ClientItemLesson(
 fun fcContainerLessonsList() = fc("QueryLessonsList") { _: Props ->
     val queryClient = useQueryClient()
 
-    val query = useQuery<Any, QueryError, AxiosResponse<Array<Item<Lessons>>>, Any>(
+    val query = useQuery<Any, QueryError, String, Any>(
         "LessonList",
         {
-            axios<Array<Lessons>>(jso {
-                url = lessonsURL
-            })
+            fetchText(lessonsURL)
         })
     val addLessonsMutation = useMutation<Any, Any, Any, Any>(
         { lesson: Lessons ->
@@ -129,7 +129,7 @@ fun fcContainerLessonsList() = fc("QueryLessonsList") { _: Props ->
     if (query.isLoading) div { +"Loading .." }
     else if (query.isError) div { +"Error .." }
     else {
-        val items = query.data?.data?.toList() ?: emptyList()
+        val items = Json.decodeFromString<List<ClientItemLesson>>(query.data ?: "")
         child(fcLessonList()) {
             attrs.lessons = items
             attrs.addLessons = { l ->

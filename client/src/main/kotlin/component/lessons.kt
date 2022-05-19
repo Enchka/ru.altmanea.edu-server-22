@@ -4,6 +4,8 @@ import kotlinext.js.jso
 import kotlinx.html.INPUT
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.w3c.dom.events.Event
 import react.*
 import react.dom.*
@@ -16,6 +18,7 @@ import ru.altmanea.edu.server.model.*
 import wrappers.AxiosResponse
 import wrappers.QueryError
 import wrappers.axios
+import wrappers.fetchText
 import kotlin.js.json
 
 external interface LessonsProps : Props {
@@ -80,20 +83,16 @@ fun fcContainerLessons() = fc("ContainerLessons") { _: Props ->
 
     val lessonsId = lessonsParam["id"] ?: "Route param error"
 
-    val query = useQuery<Any, QueryError, AxiosResponse<Item<Lessons>>, Any>(
+    val query = useQuery<Any, QueryError, String, Any>(
         lessonsId,
         {
-            axios<Array<Lessons>>(jso {
-                url = "${Config.lessonsPath}$lessonsId"
-            })
+            fetchText("${Config.lessonsPath}$lessonsId")
         }
     )
-    val queryS = useQuery<Any, QueryError, AxiosResponse<Array<Item<Student>>>, Any>(
+    val queryS = useQuery<Any, QueryError, String, Any>(
         "Students",
         {
-            axios<Array<Student>>(jso {
-                url = "${Config.lessonsPath}$lessonsId/students"
-            })
+            fetchText("${Config.lessonsPath}$lessonsId/students")
         }
     )
 
@@ -118,8 +117,8 @@ fun fcContainerLessons() = fc("ContainerLessons") { _: Props ->
     if (query.isLoading or queryS.isLoading) div { +"Loading .." }
     else if (query.isError or queryS.isError) div { +"Error!" }
     else {
-        val lessonsItem = query.data?.data!!
-        val studentItems = queryS.data?.data?.toList() ?: emptyList()
+        val lessonsItem = Json.decodeFromString<ClientItemLesson>(query.data ?: "")
+        val studentItems = Json.decodeFromString<List<ClientItemStudent>>(queryS.data ?: "")
         child(fcLessons()) {
             attrs.lessons = lessonsItem
             attrs.students = studentItems
