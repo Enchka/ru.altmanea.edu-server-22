@@ -5,6 +5,7 @@ import kotlinx.html.INPUT
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.w3c.dom.events.Event
 import react.*
@@ -99,12 +100,12 @@ fun fcContainerLessons() = fc("ContainerLessons") { _: Props ->
     val updateLessonsMutations = useMutation<Any, Any, MutationssData, Any>(
         { mutationssData ->
             axios<String>(jso {
-                url = "${Config.lessonsURL}/${mutationssData.oldLessons.uuid}"
+                url = "${Config.lessonsURL}${mutationssData.oldLessons.uuid}/name"
                 method = "Put"
                 headers = json(
                     "Content-Type" to "application/json",
                 )
-                data = JSON.stringify(mutationssData.newLessons)
+                data = Json.encodeToString(mutationssData.newLessons)
             })
         },
         options = jso {

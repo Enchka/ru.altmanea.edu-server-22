@@ -6,6 +6,7 @@ import kotlinx.html.SELECT
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.w3c.dom.events.Event
 import react.*
@@ -123,9 +124,7 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                         firstnameRef.current?.value?.let { firstname ->
                             surnameRef.current?.value?.let { surname ->
                                 groupsRef.current?.value?.let { groups ->
-                                    lessonsRef.current?.value?.let { lessons ->
-                                        props.updateStudent(firstname, surname, groups, lessons)
-                                    }
+                                    props.updateStudent(firstname, surname, groups, props.students.elem.lessons)
                                 }
                             }
                         }
@@ -179,7 +178,7 @@ fun fcContainerStudent() = fc("ContainerStudent") { _: Props ->
                 headers = json(
                     "Content-Type" to "application/json",
                 )
-                data = JSON.stringify(mutationData.newStudent)
+                data = Json.encodeToString(mutationData.newStudent)
             })
         },
         options = jso {
