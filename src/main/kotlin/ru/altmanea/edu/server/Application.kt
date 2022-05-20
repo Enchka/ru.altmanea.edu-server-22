@@ -28,6 +28,7 @@ fun Application.main(test: Boolean = true) {
         studentsRepoTestData.forEach { studentsRepo.create(it) }
         groupsRepoTestData.forEach { groupsRepo.create(it) }
         lessonsRepoTestData.forEach { lessonsRepo.create(it) }
+        scoreRepoTestData.forEach { scoreRepo.create(it) }
     }
     install(ContentNegotiation) {
         json()
@@ -37,6 +38,7 @@ fun Application.main(test: Boolean = true) {
         groups()
         lesson()
         index()
+        score()
 
     }
 }

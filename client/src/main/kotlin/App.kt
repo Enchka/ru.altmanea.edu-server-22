@@ -66,6 +66,17 @@ fun main() {
                             createElement(fcContainerLessons())
 
                     }
+                    Route {
+                        attrs.path = "/score"
+                        attrs.element =
+                            createElement(fcContainerScoreList())
+                    }
+                    Route {
+                        attrs.path = "/score/:id"
+                        attrs.element =
+                            createElement(fcContainerScore())
+
+                    }
                 }
                 child(cReactQueryDevtools()) {}
             }

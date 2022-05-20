@@ -16,5 +16,8 @@ class Config {
 
         const val lessonsPath = "${pathPrefix}lessons/"
         const val lessonsURL = "$serverUrl$lessonsPath"
+
+        const val scorePath = "${pathPrefix}score/"
+        const val scoreURL = "$serverUrl$lessonsPath"
     }
 }

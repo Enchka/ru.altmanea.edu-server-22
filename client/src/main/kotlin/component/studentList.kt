@@ -19,10 +19,11 @@ import wrappers.QueryError
 import wrappers.axios
 import kotlin.js.json
 import kotlinx.serialization.*
+import ru.altmanea.edu.server.model.Score
 
 external interface StudentListProps : Props {
     var students: List<Item<Student>>
-    var addStudent: (String, String, String, String) -> Unit
+    var addStudent: (String, String, String, String, String) -> Unit
     var deleteStudent: (Int) -> Unit
 }
 
@@ -32,6 +33,7 @@ fun fcStudentList() = fc("StudentList") { props: StudentListProps ->
     val surnameRef = useRef<INPUT>()
     val groupsRef = useRef<INPUT>()
     val lessonsRef = useRef<INPUT>()
+    val scoreRef = useRef<INPUT>()
 
 
     span {
@@ -64,105 +66,112 @@ fun fcStudentList() = fc("StudentList") { props: StudentListProps ->
                             surnameRef.current?.value?.let { surname ->
                                 groupsRef.current?.value?.let { groups ->
                                     lessonsRef.current?.value?.let { lessons ->
-                                        props.addStudent(firstname, surname, groups, lessons)
+                                        scoreRef.current?.value?.let { score ->
+                                            props.addStudent(firstname, surname, groups, lessons, score)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    h3 { +"Students" }
+                    ol {
+                        props.students.mapIndexed { index, studentItem ->
+                            li {
+                                val student =
+                                    Student(
+                                        studentItem.elem.firstname,
+                                        studentItem.elem.surname,
+                                        studentItem.elem.group,
+                                        studentItem.elem.lessons,
+                                        studentItem.elem.score
+                                    )
+                                Link {
+                                    attrs.to = "/student/${studentItem.uuid}"
+                                    +"${student.fullNameWithGroup} \t"
+                                }
+                                button {
+                                    +"X"
+                                    attrs.onClickFunction = {
+                                        props.deleteStudent(index)
                                     }
                                 }
                             }
                         }
                     }
                 }
-                h3 { +"Students" }
-                ol {
-                    props.students.mapIndexed { index, studentItem ->
-                        li {
-                            val student =
-                                Student(
-                                    studentItem.elem.firstname,
-                                    studentItem.elem.surname,
-                                    studentItem.elem.group,
-                                    studentItem.elem.lessons
-                                )
-                            Link {
-                                attrs.to = "/student/${studentItem.uuid}"
-                                +"${student.fullNameWithGroup} \t"
-                            }
-                            button {
-                                +"X"
-                                attrs.onClickFunction = {
-                                    props.deleteStudent(index)
-                                }
-                            }
-                        }
-                    }
+            }
+        }
+    }
+}
+
+
+    @Serializable
+    class ClientItemStudent(
+        override val elem: Student,
+        override val uuid: String,
+        override val etag: Long
+    ) : Item<Student>
+
+    fun fcContainerStudentList() = fc("QueryStudentList") { _: Props ->
+        val queryClient = useQueryClient()
+
+        val query = useQuery<Any, QueryError, AxiosResponse<Array<Item<Student>>>, Any>(
+            "studentList",
+            {
+                axios<Array<Student>>(jso {
+                    url = studentsURL
+                })
+            }
+        )
+
+        val addStudentMutation = useMutation<Any, Any, Any, Any>(
+            { student: Student ->
+                axios<String>(jso {
+                    url = studentsURL
+                    method = "Post"
+                    headers = json(
+                        "Content-Type" to "application/json"
+                    )
+                    data = JSON.stringify(student)
+                })
+            },
+            options = jso {
+                onSuccess = { _: Any, _: Any, _: Any? ->
+                    queryClient.invalidateQueries<Any>("studentList")
+                }
+            }
+        )
+
+        val deleteStudentMutation = useMutation<Any, Any, Any, Any>(
+            { studentItem: Item<Student> ->
+                axios<String>(jso {
+                    url = "$studentsURL/${studentItem.uuid}"
+                    method = "Delete"
+                })
+            },
+            options = jso {
+                onSuccess = { _: Any, _: Any, _: Any? ->
+                    queryClient.invalidateQueries<Any>("studentList")
+                }
+            }
+        )
+
+        if (query.isLoading) div { +"Loading .." }
+        else if (query.isError) div { +"Error!" }
+        else {
+            val items = query.data?.data?.toList() ?: emptyList()
+            child(fcStudentList()) {
+                attrs.students = items
+                attrs.addStudent = { f, s, g, l, c ->
+                    addStudentMutation.mutate(Student(f, s, g, l, c), null)
+                }
+                attrs.deleteStudent = {
+                    deleteStudentMutation.mutate(items[it], null)
                 }
             }
         }
+
     }
-}
 
-@Serializable
-class ClientItemStudent(
-    override val elem: Student,
-    override val uuid: String,
-    override val etag: Long
-) : Item<Student>
 
-fun fcContainerStudentList() = fc("QueryStudentList") { _: Props ->
-    val queryClient = useQueryClient()
-
-    val query = useQuery<Any, QueryError, AxiosResponse<Array<Item<Student>>>, Any>(
-        "studentList",
-        {
-            axios<Array<Student>>(jso {
-                url = studentsURL
-            })
-        }
-    )
-
-    val addStudentMutation = useMutation<Any, Any, Any, Any>(
-        { student: Student ->
-            axios<String>(jso {
-                url = studentsURL
-                method = "Post"
-                headers = json(
-                    "Content-Type" to "application/json"
-                )
-                data = JSON.stringify(student)
-            })
-        },
-        options = jso {
-            onSuccess = { _: Any, _: Any, _: Any? ->
-                queryClient.invalidateQueries<Any>("studentList")
-            }
-        }
-    )
-
-    val deleteStudentMutation = useMutation<Any, Any, Any, Any>(
-        { studentItem: Item<Student> ->
-            axios<String>(jso {
-                url = "$studentsURL/${studentItem.uuid}"
-                method = "Delete"
-            })
-        },
-        options = jso {
-            onSuccess = { _: Any, _: Any, _: Any? ->
-                queryClient.invalidateQueries<Any>("studentList")
-            }
-        }
-    )
-
-    if (query.isLoading) div { +"Loading .." }
-    else if (query.isError) div { +"Error!" }
-    else {
-        val items = query.data?.data?.toList() ?: emptyList()
-        child(fcStudentList()) {
-            attrs.students = items
-            attrs.addStudent = { f, s, g, l ->
-                addStudentMutation.mutate(Student(f, s, g, l), null)
-            }
-            attrs.deleteStudent = {
-                deleteStudentMutation.mutate(items[it], null)
-            }
-        }
-    }
-}

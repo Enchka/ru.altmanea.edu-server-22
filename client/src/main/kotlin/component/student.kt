@@ -2,7 +2,6 @@ package component
 
 import kotlinext.js.jso
 import kotlinx.html.INPUT
-import kotlinx.html.SELECT
 import kotlinx.html.js.onChangeFunction
 import kotlinx.html.js.onClickFunction
 import kotlinx.serialization.decodeFromString
@@ -11,17 +10,11 @@ import kotlinx.serialization.json.Json
 import org.w3c.dom.events.Event
 import react.*
 import react.dom.*
-import react.query.Query
 import react.query.useMutation
 import react.query.useQuery
 import react.query.useQueryClient
-import react.router.dom.Link
 import react.router.useParams
-import ru.altmanea.edu.server.model.Config
-import ru.altmanea.edu.server.model.Item
-import ru.altmanea.edu.server.model.Lessons
-import ru.altmanea.edu.server.model.Student
-import wrappers.AxiosResponse
+import ru.altmanea.edu.server.model.*
 import wrappers.QueryError
 import wrappers.axios
 import wrappers.fetchText
@@ -29,24 +22,20 @@ import kotlin.js.json
 
 external interface StudentProps : Props {
     var students: Item<Student>
-    var updateStudent: (String, String,String, String) -> Unit
+    var updateStudent: (String, String, String, String, String) -> Unit
     var addLessons: (String) -> Unit
     var lessons: List<Item<Lessons>>
-    var lessonStudent: List<Item<Lessons>>
+    var marks: List<Item<Score>>
 }
-
 
 fun fcStudent() = fc("Student") { props: StudentProps ->
     val firstnameRef = useRef<INPUT>()
     val surnameRef = useRef<INPUT>()
     val groupsRef = useRef<INPUT>()
-    val lessonsRef = useRef<INPUT>()
-    val selectRef = useRef<SELECT>()
 
     val (firstname, setFirstname) = useState(props.students.elem.firstname)
     val (surname, setSurname) = useState(props.students.elem.surname)
     val (groups, setGroups) = useState(props.students.elem.group)
-    val (lessons, setLessons) = useState(props.students.elem.lessons)
 
     fun onInputEdit(setter: StateSetter<String>, ref: MutableRefObject<INPUT>) =
         { _: Event ->
@@ -76,46 +65,12 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                     attrs.value = groups
                     attrs.onChangeFunction = onInputEdit(setGroups, groupsRef)
                 }
-                /*p {
-                    +"Lessons:"
-                }
-
-                select {
-                    ref = selectRef
-                    for(lesson in props.lessons) {
-                        option {
-                            +lesson.elem.name
-                            attrs.value = lesson.uuid
-                        }
-                    }
-                }
-                button {
-                    +"Add lessons"
-                    attrs.onClickFunction = {
-                        val value = selectRef.current.unsafeCast<MySelect>().value
-                        props.addLessons(value)
-                    }
-                }
-
-                ol {
-                    for (lesson in props.lessonStudent) {
-                        li {
-                            Link {
-                                attrs.to = "/lessons/${lesson.uuid}"
-                                +"${lesson.elem.name}\t"
-                            }
-                            button {
-                                +"X"
-                                attrs.onClickFunction = {
-                                    //props.deleteLessons(index)
-                                }
-                            }
-                        }
-                    }
-                }*/
 
                 p {
                     +"Lesson: ${props.students.elem.lessons}"
+                }
+                p {
+                    +"Score: ${props.students.elem.score}"
                 }
 
                 button {
@@ -124,7 +79,13 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                         firstnameRef.current?.value?.let { firstname ->
                             surnameRef.current?.value?.let { surname ->
                                 groupsRef.current?.value?.let { groups ->
-                                    props.updateStudent(firstname, surname, groups, props.students.elem.lessons)
+                                    props.updateStudent(
+                                        firstname,
+                                        surname,
+                                        groups,
+                                        props.students.elem.lessons,
+                                        props.students.elem.score
+                                    )
                                 }
                             }
                         }
@@ -146,7 +107,7 @@ fun fcContainerStudent() = fc("ContainerStudent") { _: Props ->
 
     val studentId = studentParams["id"] ?: "Route param error"
 
-    val query = useQuery<Any, QueryError,String, Any>(
+    val query = useQuery<Any, QueryError, String, Any>(
         studentId,
         {
             fetchText(
@@ -168,7 +129,20 @@ fun fcContainerStudent() = fc("ContainerStudent") { _: Props ->
                 "${Config.studentsPath}$studentId/lessons"
             )
         })
-
+    val queryscore = useQuery<Any, QueryError, String, Any>(
+        "ScoreList",
+        {
+            fetchText(
+                Config.scorePath
+            )
+        })
+    val QueryScore = useQuery<Any, QueryError, String, Any>(
+        "ScoreStudent",
+        {
+            fetchText(
+                "${Config.studentsPath}$studentId/score"
+            )
+        })
 
     val updateStudentMutation = useMutation<Any, Any, MutationData, Any>(
         { mutationData ->
@@ -204,26 +178,26 @@ fun fcContainerStudent() = fc("ContainerStudent") { _: Props ->
         }
     )
 
-    if (query.isLoading or querys.isLoading or Query.isLoading) div { +"Loading .." }
-    else if (query.isError or querys.isError or Query.isError) div { +"Error!" }
+    if (query.isLoading or querys.isLoading or Query.isLoading or queryscore.isLoading or QueryScore.isLoading) div { +"Loading .." }
+    else if (query.isError or querys.isError or Query.isError or queryscore.isError or QueryScore.isError) div { +"Error!" }
     else {
         val studentItem =
             Json.decodeFromString<ClientItemStudent>(query.data ?: "")
-        val lessonsItem=
+        val lessonsItem =
             Json.decodeFromString<List<ClientItemLesson>>(querys.data ?: "")
-        val lessonsStudent=
-            Json.decodeFromString<List<ClientItemLesson>>(Query.data ?: "")
+        val scoreItem =
+            Json.decodeFromString<List<ClientItemScore>>(querys.data ?: "")
 
         child(fcStudent()) {
             attrs.students = studentItem
             attrs.lessons = lessonsItem
-            attrs.updateStudent = { f, s, g, l ->
-                updateStudentMutation.mutate(MutationData(studentItem, Student(f, s, g, l)), null)
+            attrs.marks = scoreItem
+            attrs.updateStudent = { f, s, g, l, c ->
+                updateStudentMutation.mutate(MutationData(studentItem, Student(f, s, g, l, c)), null)
             }
             attrs.addLessons = { l ->
                 addLessonsMutation.mutate(l, null)
             }
-            attrs.lessonStudent = lessonsStudent
         }
     }
 }

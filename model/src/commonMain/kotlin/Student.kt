@@ -7,8 +7,9 @@ class Student(
     val firstname: String,
     val surname: String,
     val group: String,
-    val lessons: String
+    val lessons: String,
+    val score: String
 ) {
     val fullNameWithGroup: String
-        get() = "$firstname $surname,$group, $lessons "
+        get() = "$firstname $surname,$group, $lessons, $score "
 }

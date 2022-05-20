@@ -62,7 +62,7 @@ fun fcGroup() = fc("Groups") { props: GroupsProps ->
         props.students.mapIndexed{ index, studentItems ->
             li {
                 val student =
-                    Student(studentItems.elem.firstname, studentItems.elem.surname, studentItems.elem.group,studentItems.elem.lessons)
+                    Student(studentItems.elem.firstname, studentItems.elem.surname, studentItems.elem.group,studentItems.elem.lessons,studentItems.elem.score)
                 Link {
                     attrs.to = "/student/${studentItems.uuid}"
                     +"${student.firstname} ${student.surname}"
