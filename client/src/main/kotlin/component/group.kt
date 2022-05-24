@@ -13,7 +13,7 @@ import react.query.useQueryClient
 import react.router.dom.Link
 import react.router.useParams
 import ru.altmanea.edu.server.model.Config
-import ru.altmanea.edu.server.model.Groups
+import ru.altmanea.edu.server.model.Group
 import ru.altmanea.edu.server.model.Item
 import ru.altmanea.edu.server.model.Student
 import wrappers.AxiosResponse
@@ -22,7 +22,7 @@ import wrappers.axios
 import kotlin.js.json
 
 external interface GroupsProps : Props {
-    var groups: Item<Groups>
+    var groups: Item<Group>
     var students: List<Item<Student>>
     var updateGroups: (String) -> Unit
 }
@@ -62,7 +62,7 @@ fun fcGroup() = fc("Groups") { props: GroupsProps ->
         props.students.mapIndexed{ index, studentItems ->
             li {
                 val student =
-                    Student(studentItems.elem.firstname, studentItems.elem.surname, studentItems.elem.group,studentItems.elem.lessons)
+                    Student(studentItems.elem.firstname, studentItems.elem.surname, studentItems.elem.group)
                 Link {
                     attrs.to = "/student/${studentItems.uuid}"
                     +"${student.firstname} ${student.surname}"
@@ -73,8 +73,8 @@ fun fcGroup() = fc("Groups") { props: GroupsProps ->
 }
 
 class MutationsData(
-    val oldGroups: Item<Groups>,
-    val newGroups: Groups,
+    val oldGroups: Item<Group>,
+    val newGroups: Group,
 )
 
 fun fcContainerGroups() = fc("ContainerGroups") { _: Props ->
@@ -83,10 +83,10 @@ fun fcContainerGroups() = fc("ContainerGroups") { _: Props ->
 
     val groupsId = groupsParam["id"] ?: "Route param error"
 
-    val query = useQuery<Any, QueryError, AxiosResponse<Item<Groups>>, Any>(
+    val query = useQuery<Any, QueryError, AxiosResponse<Item<Group>>, Any>(
         groupsId,
         {
-            axios<Array<Groups>>(jso {
+            axios<Array<Group>>(jso {
                 url = "${Config.groupsPath}group/$groupsId"
             })
         }
@@ -127,7 +127,7 @@ fun fcContainerGroups() = fc("ContainerGroups") { _: Props ->
             attrs.groups = groupsItem
             attrs.students = studentItems
             attrs.updateGroups = { g ->
-                updateGroupsMutations.mutate(MutationsData(groupsItem, Groups(g)), null)
+                updateGroupsMutations.mutate(MutationsData(groupsItem, Group(g)), null)
             }
         }
     }

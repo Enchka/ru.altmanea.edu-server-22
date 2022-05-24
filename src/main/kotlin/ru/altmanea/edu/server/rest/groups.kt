@@ -6,7 +6,7 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import ru.altmanea.edu.server.model.Config.Companion.groupsPath
-import ru.altmanea.edu.server.model.Groups
+import ru.altmanea.edu.server.model.Group
 import ru.altmanea.edu.server.repo.groupsRepo
 import ru.altmanea.edu.server.repo.studentsRepo
 
@@ -50,7 +50,7 @@ fun Route.groups() =
         }
 
         post {
-            val groups = call.receive<Groups>()
+            val groups = call.receive<Group>()
             groupsRepo.create(groups)
             call.respondText("groups stored correctly", status = HttpStatusCode.Created)
         }
@@ -71,7 +71,7 @@ fun Route.groups() =
                 "No groups with id $id",
                 status = HttpStatusCode.NotFound
             )
-            val newGroups = call.receive<Groups>()
+            val newGroups = call.receive<Group>()
             groupsRepo.update(id, newGroups)
             call.respondText("Groups updates correctly", status = HttpStatusCode.Created)
         }

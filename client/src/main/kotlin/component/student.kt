@@ -29,7 +29,7 @@ import kotlin.js.json
 
 external interface StudentProps : Props {
     var students: Item<Student>
-    var updateStudent: (String, String,String, String) -> Unit
+    var updateStudent: (String, String,String) -> Unit
     var addLessons: (String) -> Unit
     var lessons: List<Item<Lessons>>
     var lessonStudent: List<Item<Lessons>>
@@ -40,13 +40,11 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
     val firstnameRef = useRef<INPUT>()
     val surnameRef = useRef<INPUT>()
     val groupsRef = useRef<INPUT>()
-    val lessonsRef = useRef<INPUT>()
     val selectRef = useRef<SELECT>()
 
     val (firstname, setFirstname) = useState(props.students.elem.firstname)
     val (surname, setSurname) = useState(props.students.elem.surname)
     val (groups, setGroups) = useState(props.students.elem.group)
-    val (lessons, setLessons) = useState(props.students.elem.lessons)
 
     fun onInputEdit(setter: StateSetter<String>, ref: MutableRefObject<INPUT>) =
         { _: Event ->
@@ -114,9 +112,6 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                     }
                 }*/
 
-                p {
-                    +"Lesson: ${props.students.elem.lessons}"
-                }
 
                 button {
                     +"Update student"
@@ -124,7 +119,7 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                         firstnameRef.current?.value?.let { firstname ->
                             surnameRef.current?.value?.let { surname ->
                                 groupsRef.current?.value?.let { groups ->
-                                    props.updateStudent(firstname, surname, groups, props.students.elem.lessons)
+                                    props.updateStudent(firstname, surname, groups)
                                 }
                             }
                         }
@@ -217,8 +212,8 @@ fun fcContainerStudent() = fc("ContainerStudent") { _: Props ->
         child(fcStudent()) {
             attrs.students = studentItem
             attrs.lessons = lessonsItem
-            attrs.updateStudent = { f, s, g, l ->
-                updateStudentMutation.mutate(MutationData(studentItem, Student(f, s, g, l)), null)
+            attrs.updateStudent = { f, s, g ->
+                updateStudentMutation.mutate(MutationData(studentItem, Student(f, s, g)), null)
             }
             attrs.addLessons = { l ->
                 addLessonsMutation.mutate(l, null)

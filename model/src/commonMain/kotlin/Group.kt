@@ -3,7 +3,7 @@ package ru.altmanea.edu.server.model
 import kotlinx.serialization.*
 
 @Serializable
-class Groups(
+class Group(
     val name : String
 ) {
     val getName: String

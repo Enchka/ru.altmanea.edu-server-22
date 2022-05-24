@@ -1,17 +1,16 @@
 package ru.altmanea.edu.server.repo
 
 import ru.altmanea.edu.server.model.Config
-import ru.altmanea.edu.server.model.Groups
-import ru.altmanea.edu.server.model.Student
+import ru.altmanea.edu.server.model.Group
 
-val groupsRepo = ListRepo<Groups>()
+val groupsRepo = ListRepo<Group>()
 
-fun ListRepo<Groups>.urlByUUID(uuid: String) =
+fun ListRepo<Group>.urlByUUID(uuid: String) =
     this[uuid]?.let {
         Config.groupsURL + it.uuid
     }
 
-fun ListRepo<Groups>.urlByGroups(groups: String) =
+fun ListRepo<Group>.urlByGroups(groups: String) =
     this.find { it.getName == groups }.let {
         if (it.size == 1)
             Config.groupsURL + it.first().uuid
@@ -20,8 +19,8 @@ fun ListRepo<Groups>.urlByGroups(groups: String) =
     }
 
 val groupsRepoTestData = listOf(
-    Groups("29a"),
-    Groups("29b"),
-    Groups("29c"),
-    Groups("29d"),
+    Group("29a"),
+    Group("29b"),
+    Group("29c"),
+    Group("29d"),
 )

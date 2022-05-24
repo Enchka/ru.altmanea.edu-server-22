@@ -12,21 +12,20 @@ import react.query.useQueryClient
 import react.router.dom.Link
 import react.useRef
 import ru.altmanea.edu.server.model.Config.Companion.groupsURL
-import ru.altmanea.edu.server.model.Config.Companion.studentsURL
-import ru.altmanea.edu.server.model.Groups
+import ru.altmanea.edu.server.model.Group
 import ru.altmanea.edu.server.model.Item
-import ru.altmanea.edu.server.model.Student
 import wrappers.AxiosResponse
 import wrappers.QueryError
 import wrappers.axios
 import kotlin.js.json
 
 interface GroupsListProps : Props {
-    var groups: List<Item<Groups>>
+    var groups: List<Item<Group>>
     var addGroups: (String) -> Unit
     var deleteGroups: (Int) -> Unit
 }
-fun fcGroupList() =fc("GroupList") { props: GroupsListProps ->
+
+fun fcGroupList() = fc("GroupList") { props: GroupsListProps ->
 
     val groupsRef = useRef<INPUT>()
 
@@ -47,12 +46,12 @@ fun fcGroupList() =fc("GroupList") { props: GroupsListProps ->
         }
     }
 
-    h3 {+"Group"}
+    h3 { +"Group" }
     ol {
         props.groups.mapIndexed { index, groupsItem ->
             li {
                 val groups =
-                    Groups(groupsItem.elem.name)
+                    Group(groupsItem.elem.name)
                 Link {
                     attrs.to = "/groups/${groupsItem.uuid}"
                     +"${groups.name}\t"
@@ -67,18 +66,19 @@ fun fcGroupList() =fc("GroupList") { props: GroupsListProps ->
         }
     }
 }
+
 fun fcContainerGroupsList() = fc("QueryGroupsList") { _: Props ->
     val queryClient = useQueryClient()
 
-    val query = useQuery<Any, QueryError, AxiosResponse<Array<Item<Groups>>>, Any>(
+    val query = useQuery<Any, QueryError, AxiosResponse<Array<Item<Group>>>, Any>(
         "GroupList",
         {
-            axios<Array<Groups>>(jso {
+            axios<Array<Group>>(jso {
                 url = groupsURL
             })
         })
     val addGroupsMutation = useMutation<Any, Any, Any, Any>(
-        { group: Groups ->
+        { group: Group ->
             axios<String>(jso {
                 url = groupsURL
                 method = "Post"
@@ -96,7 +96,7 @@ fun fcContainerGroupsList() = fc("QueryGroupsList") { _: Props ->
     )
 
     val deleteGroupsMutation = useMutation<Any, Any, Any, Any>(
-        { groupsItem: Item<Groups> ->
+        { groupsItem: Item<Group> ->
             axios<String>(jso {
                 url = "$groupsURL/${groupsItem.uuid}"
                 method = "Delete"
@@ -115,7 +115,7 @@ fun fcContainerGroupsList() = fc("QueryGroupsList") { _: Props ->
         child(fcGroupList()) {
             attrs.groups = items
             attrs.addGroups = { g ->
-                addGroupsMutation.mutate(Groups(g), null)
+                addGroupsMutation.mutate(Group(g), null)
             }
             attrs.deleteGroups = {
                 deleteGroupsMutation.mutate(items[it], null)

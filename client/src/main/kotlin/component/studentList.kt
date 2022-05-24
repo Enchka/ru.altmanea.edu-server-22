@@ -3,6 +3,7 @@ package component
 import kotlinext.js.jso
 import kotlinx.html.INPUT
 import kotlinx.html.js.onClickFunction
+import kotlinx.serialization.Serializable
 import react.Props
 import react.dom.*
 import react.fc
@@ -18,11 +19,10 @@ import wrappers.AxiosResponse
 import wrappers.QueryError
 import wrappers.axios
 import kotlin.js.json
-import kotlinx.serialization.*
 
 external interface StudentListProps : Props {
     var students: List<Item<Student>>
-    var addStudent: (String, String, String, String) -> Unit
+    var addStudent: (String, String, String) -> Unit
     var deleteStudent: (Int) -> Unit
 }
 
@@ -31,8 +31,6 @@ fun fcStudentList() = fc("StudentList") { props: StudentListProps ->
     val firstnameRef = useRef<INPUT>()
     val surnameRef = useRef<INPUT>()
     val groupsRef = useRef<INPUT>()
-    val lessonsRef = useRef<INPUT>()
-
 
     span {
         p {
@@ -52,19 +50,13 @@ fun fcStudentList() = fc("StudentList") { props: StudentListProps ->
                     ref = groupsRef
                 }
                 p {
-                    +"Lesson: "
-                    input {
-                        ref = lessonsRef
-                    }
-                }
-                button {
-                    +"Add student"
-                    attrs.onClickFunction = {
-                        firstnameRef.current?.value?.let { firstname ->
-                            surnameRef.current?.value?.let { surname ->
-                                groupsRef.current?.value?.let { groups ->
-                                    lessonsRef.current?.value?.let { lessons ->
-                                        props.addStudent(firstname, surname, groups, lessons)
+                    button {
+                        +"Add student"
+                        attrs.onClickFunction = {
+                            firstnameRef.current?.value?.let { firstname ->
+                                surnameRef.current?.value?.let { surname ->
+                                    groupsRef.current?.value?.let { groups ->
+                                        props.addStudent(firstname, surname, groups)
                                     }
                                 }
                             }
@@ -80,7 +72,6 @@ fun fcStudentList() = fc("StudentList") { props: StudentListProps ->
                                     studentItem.elem.firstname,
                                     studentItem.elem.surname,
                                     studentItem.elem.group,
-                                    studentItem.elem.lessons
                                 )
                             Link {
                                 attrs.to = "/student/${studentItem.uuid}"
@@ -157,8 +148,8 @@ fun fcContainerStudentList() = fc("QueryStudentList") { _: Props ->
         val items = query.data?.data?.toList() ?: emptyList()
         child(fcStudentList()) {
             attrs.students = items
-            attrs.addStudent = { f, s, g, l ->
-                addStudentMutation.mutate(Student(f, s, g, l), null)
+            attrs.addStudent = { f, s, g ->
+                addStudentMutation.mutate(Student(f, s, g), null)
             }
             attrs.deleteStudent = {
                 deleteStudentMutation.mutate(items[it], null)

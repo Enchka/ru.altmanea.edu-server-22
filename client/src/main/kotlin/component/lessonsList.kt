@@ -15,14 +15,9 @@ import react.query.useQuery
 import react.query.useQueryClient
 import react.router.dom.Link
 import react.useRef
-import ru.altmanea.edu.server.model.Config.Companion.groupsURL
 import ru.altmanea.edu.server.model.Config.Companion.lessonsURL
-import ru.altmanea.edu.server.model.Config.Companion.studentsURL
-import ru.altmanea.edu.server.model.Groups
 import ru.altmanea.edu.server.model.Item
 import ru.altmanea.edu.server.model.Lessons
-import ru.altmanea.edu.server.model.Student
-import wrappers.AxiosResponse
 import wrappers.QueryError
 import wrappers.axios
 import wrappers.fetchText
@@ -38,7 +33,7 @@ interface MySelect {
     val value: String
 }
 
-fun fcLessonList() =fc("LessonList") { props: LessonsListProps ->
+fun fcLessonList() = fc("LessonList") { props: LessonsListProps ->
 
     val lessonsRef = useRef<INPUT>()
 
@@ -59,7 +54,7 @@ fun fcLessonList() =fc("LessonList") { props: LessonsListProps ->
         }
     }
 
-    h3 {+"Lesson"}
+    h3 { +"Lesson" }
     ol {
         props.lessons.mapIndexed { index, lessonsItem ->
             li {

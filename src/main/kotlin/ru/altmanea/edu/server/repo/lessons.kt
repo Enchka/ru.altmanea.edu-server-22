@@ -1,7 +1,7 @@
 package ru.altmanea.edu.server.repo
 
 import ru.altmanea.edu.server.model.Config
-import ru.altmanea.edu.server.model.Groups
+import ru.altmanea.edu.server.model.Group
 import ru.altmanea.edu.server.model.Lessons
 import ru.altmanea.edu.server.model.Student
 

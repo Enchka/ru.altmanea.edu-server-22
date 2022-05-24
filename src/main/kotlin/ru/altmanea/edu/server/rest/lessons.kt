@@ -46,9 +46,9 @@ fun Route.lesson() {
                     status = HttpStatusCode.NotFound
                 )
 
-            val students = studentsRepo.find { it.lessons == lessonItem.elem.name }
+//            val students = studentsRepo.find { it.lessons == lessonItem.elem.name }
 
-            call.respond(students)
+//            call.respond(students)
         }
         post {
             val lesson = call.receive<Lessons>()
