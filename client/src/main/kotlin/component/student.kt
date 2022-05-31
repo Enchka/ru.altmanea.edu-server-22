@@ -74,53 +74,14 @@ fun fcStudent() = fc("Student") { props: StudentProps ->
                     attrs.value = groups
                     attrs.onChangeFunction = onInputEdit(setGroups, groupsRef)
                 }
-                /*p {
-                    +"Lessons:"
-                }
-
-                select {
-                    ref = selectRef
-                    for(lesson in props.lessons) {
-                        option {
-                            +lesson.elem.name
-                            attrs.value = lesson.uuid
-                        }
-                    }
-                }
-                button {
-                    +"Add lessons"
-                    attrs.onClickFunction = {
-                        val value = selectRef.current.unsafeCast<MySelect>().value
-                        props.addLessons(value)
-                    }
-                }
-
-                ol {
-                    for (lesson in props.lessonStudent) {
-                        li {
-                            Link {
-                                attrs.to = "/lessons/${lesson.uuid}"
-                                +"${lesson.elem.name}\t"
-                            }
-                            button {
-                                +"X"
-                                attrs.onClickFunction = {
-                                    //props.deleteLessons(index)
-                                }
-                            }
-                        }
-                    }
-                }*/
-
-
-                button {
-                    +"Update student"
-                    attrs.onClickFunction = {
-                        firstnameRef.current?.value?.let { firstname ->
-                            surnameRef.current?.value?.let { surname ->
-                                groupsRef.current?.value?.let { groups ->
-                                    props.updateStudent(firstname, surname, groups)
-                                }
+            }
+            button {
+                +"Update student"
+                attrs.onClickFunction = {
+                    firstnameRef.current?.value?.let { firstname ->
+                        surnameRef.current?.value?.let { surname ->
+                            groupsRef.current?.value?.let { groups ->
+                                props.updateStudent(firstname, surname, groups)
                             }
                         }
                     }
